@@ -2,7 +2,7 @@ const expressjs = require('./expressjs_utils')
 const parse_url = require('./url').parse
 
 const regexs = {
-  req_url: new RegExp('^(.*?)/([a-zA-Z0-9\\+/=%]+)(?:[\\._]([^/\\?#]*))?(?:[\\?#].*)?$'),
+  req_url: new RegExp('^(.*?\/hls)/([a-zA-Z0-9\\+/=%]+)(?:[\\._]([^/\\?#]*))?(?:[\\?#].*)?$'),
   origin:  new RegExp('^(https?://[^/]+)(?:/.*)?$', 'i')
 }
 

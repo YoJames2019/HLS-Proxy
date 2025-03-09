@@ -14,7 +14,7 @@ const get_middleware = function(params) {
 
   const is_acl_pass_allowed = acl_pass.is_allowed.bind(null, params)
   const debug               = utils.debug.bind(null, params)
-  const parse_req_url       = utils.parse_req_url.bind(null, params)
+  const parse_req_url       = utils.parse_req_url.bind(null, {...params, is_secure: true})
   const get_request_options = utils.get_request_options.bind(null, params)
   const modify_m3u8_content = parser.modify_m3u8_content.bind(null, params, segment_cache)
 

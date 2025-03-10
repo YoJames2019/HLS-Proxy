@@ -106,6 +106,53 @@ const parse_HHMMSS_to_seconds = function(str) {
   return seconds
 }
 
+function add_subtitle_track(m3u8_content) {
+  // Remove existing subtitle and closed caption tracks
+  m3u8_content = m3u8_content.replace(/#EXT-X-MEDIA:TYPE=SUBTITLES.*?\n/g, '');
+  m3u8_content = m3u8_content.replace(/#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS.*?\n/g, '');
+
+  m3u8_content = m3u8_content.replace(/#EXT-X-STREAM-INF:([^\r\n]+)(\r?\n)/g, (match, p1, p2) => {
+    return `#EXT-X-STREAM-INF:${p1},CLOSED-CAPTIONS=NONE,${p2}`;
+  });
+  return m3u8_content
+  // const test_url = "https://proxy.lhctv.dev/vtt?url=https://s.megastatics.com/subtitle/b88b1cbfda6ed8e14d0a6a11758a22d8/eng-2.vtt"
+  // const groupID = "lhctv-subs";
+  // const subtitleTrack = `#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="${groupID}",NAME="Built-in subs",URI="${test_url}"`;
+  
+  // // Determine if this is a master playlist or a media playlist
+  // const isMasterPlaylist = m3u8_content.includes('#EXT-X-STREAM-INF');
+  
+  // // Ensure we have the appropriate version
+  // if (m3u8_content.includes('#EXT-X-VERSION:')) {
+  //   m3u8_content = m3u8_content.replace(/#EXT-X-VERSION:(\d+)/, (match, version) => {
+  //     return parseInt(version) < 4 ? '#EXT-X-VERSION:4' : match;
+  //   });
+  // } else {
+  //   // Add version if missing - right after #EXTM3U
+  //   m3u8_content = m3u8_content.replace(/#EXTM3U(\r?\n)/, '#EXTM3U$1#EXT-X-VERSION:4$1');
+  // }
+  
+  // if (isMasterPlaylist) {
+  //   // For master playlist: Add subtitle track after the version tag
+  //   if (m3u8_content.includes('#EXT-X-VERSION:')) {
+  //     m3u8_content = m3u8_content.replace(/(#EXT-X-VERSION:\d+\r?\n)/, `$1${subtitleTrack}\r\n`);
+  //   } else {
+  //     // Fallback: add after #EXTM3U if no version found (though we should have added version)
+  //     m3u8_content = m3u8_content.replace(/(#EXTM3U\r?\n)/, `$1${subtitleTrack}\r\n`);
+  //   }
+    
+  //   // Update stream info lines
+  //   m3u8_content = m3u8_content.replace(/#EXT-X-STREAM-INF:([^\r\n]+)(\r?\n)/g, (match, p1, p2) => {
+  //     if (p1.includes('SUBTITLES=')) {
+  //       return `#EXT-X-STREAM-INF:${p1.replace(/SUBTITLES="[^"]*"/, `,CLOSED-CAPTIONS=NONE,SUBTITLES="${groupID}"`)}${p2}`;
+  //     }
+  //     return `#EXT-X-STREAM-INF:${p1},CLOSED-CAPTIONS=NONE,SUBTITLES="${groupID}"${p2}`;
+  //   });
+  // }
+  
+  // return m3u8_content;
+}
+
 // returns: {
 //   meta_data:     {is_vod, seg_duration_ms},
 //   embedded_urls: [{line_index, url_indices, url_type, original_match_url, resolved_match_url, redirected_url, unencoded_url, encoded_url, referer_url}],
@@ -113,6 +160,9 @@ const parse_HHMMSS_to_seconds = function(str) {
 //   modified_m3u8: ''
 // }
 const parse_manifest = function(m3u8_content, m3u8_url, referer_url, hooks, cache_segments, debug, vod_start_at_ms, redirected_base_url, should_prefetch_url, manifest_extension, segment_extension, qs_password) {
+  
+  m3u8_content = add_subtitle_track(m3u8_content)
+
   const m3u8_lines = m3u8_content.split(regexs.m3u8_line_separator)
   m3u8_content = null
 
@@ -132,6 +182,7 @@ const parse_manifest = function(m3u8_content, m3u8_url, referer_url, hooks, cach
     })
   }
 
+  
   return {
     meta_data,
     embedded_urls,
